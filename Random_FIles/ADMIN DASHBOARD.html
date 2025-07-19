@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR Management Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --success: #4cc9f0;
+            --warning: #f72585;
+            --card-bg: #ffffff;
+            --sidebar-bg: #2b2d42;
+            --sidebar-hover: #3d405b;
+            --header-height: 70px;
+            --sidebar-width: 250px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
+            min-height: 100vh;
+            display: flex;
+            color: var(--dark);
+            overflow-x: hidden;
+        }
+        
+        /* Top Bar */
+        .top-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: var(--header-height);
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            padding: 0 30px;
+            z-index: 1000;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .logo i {
+            color: var(--primary);
+            font-size: 24px;
+        }
+        
+        .top-bar .admin-info {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .admin-name {
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .admin-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--sidebar-bg);
+            height: 100vh;
+            padding-top: calc(var(--header-height) + 20px);
+            position: fixed;
+            left: 0;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+        }
+        
+        .sidebar-menu {
+            list-style: none;
+            padding: 0 20px;
+        }
+        
+        .sidebar-menu li {
+            margin-bottom: 5px;
+        }
+        
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .sidebar-menu a:hover, .sidebar-menu a.active {
+            background-color: var(--sidebar-hover);
+            color: white;
+        }
+        
+        .sidebar-menu i {
+            margin-right: 12px;
+            font-size: 18px;
+            width: 24px;
+            text-align: center;
+        }
+        
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: calc(var(--header-height) + 20px) 30px 30px;
+            transition: margin-left 0.3s ease;
+        }
+        
+        .page-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 30px;
+            color: var(--dark);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        /* Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            padding: 25px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--gray);
+        }
+        
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+        }
+        
+        .card-value {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: var(--dark);
+        }
+        
+        .card-info {
+            font-size: 14px;
+            color: var(--gray);
+            display: flex;
+            align-items: center;
+        }
+        
+        .card-info.positive {
+            color: #06d6a0;
+        }
+        
+        .card-info.negative {
+            color: var(--warning);
+        }
+        
+        /* Button */
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.4);
+        }
+        
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 14px;
+        }
+        
+        .btn-success {
+            background: linear-gradient(45deg, #06d6a0, #04a777);
+            color: white;
+        }
+        
+        .btn-danger {
+            background: linear-gradient(45deg, #f72585, #b5179e);
+            color: white;
+        }
+        
+        /* Tabs */
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #e0e0e0;
+            margin-bottom: 20px;
+        }
+        
+        .tab {
+            padding: 12px 24px;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--gray);
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .tab.active {
+            color: var(--primary);
+            border-bottom: 3px solid var(--primary);
+        }
+        
+        /* Table */
+        .table-container {
+            background-color: var(--card-bg);
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            padding: 25px;
+            overflow: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th {
+            text-align: left;
+            padding: 15px;
+            font-weight: 600;
+            color: var(--gray);
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        tr:hover td {
+            background-color: #f9f9f9;
+        }
+        
+        /* Calendar */
+        .calendar-container {
+            background-color: var(--card-bg);
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+        }
+        
+        .calendar-day {
+            text-align: center;
+            font-weight: 600;
+            padding: 10px 0;
+            color: var(--gray);
+        }
+        
+        .calendar-date {
+            height: 80px;
+            border: 1px solid #e0e0e0;
+            padding: 5px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .calendar-date:hover {
+            background-color: #f0f5ff;
+        }
+        
+        .calendar-date-number {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            font-size: 14px;
+        }
+        
+        .leave-indicator {
+            position: absolute;
+            bottom: 5px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 12px;
+            color: white;
+            padding: 2px;
+            border-radius: 3px;
+        }
+        
+        .approved {
+            background-color: #06d6a0;
+        }
+        
+        .pending {
+            background-color: #ffd166;
+        }
+        
+        .rejected {
+            background-color: #f72585;
+        }
+        
+        /* Forms */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--gray);
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow: auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-body {
+            padding: 20px;
+        }
+        
+        .modal-footer {
+            padding: 20px;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--gray);
+        }
+        
+        /* Charts */
+        .chart-container {
+            background-color: var(--card-bg);
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            padding: 25px;
+            margin-bottom: 30px;
+            height: 400px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .menu-toggle {
+                display: block;
+            }
+        }
+        
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--primary);
+            margin-right: 15px;
+        }
+        
+        .page {
+            display: none;
+        }
+        
+        .page.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .status-pending {
+            background-color: #ffd166;
+            color: #8a6800;
+        }
+        
+        .status-approved {
+            background-color: #06d6a0;
+            color: #005638;
+        }
+        
+        .status-rejected {
+            background-color: #f72585;
+            color: #8a0034;
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <button class="menu-toggle">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="logo">
+            <i class="fas fa-users-cog"></i>
+            <h2>HR Management</h2>
+        </div>
+        <div class="admin-info">
+            <span class="admin-name">Alex Morgan</span>
+            <div class="admin-avatar">AM</div>
+        </div>
+    </div>
+    
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <ul class="sidebar-menu">
+            <li><a href="#" class="active" data-page="dashboard"><i class="fas fa-home"></i> <span>Dashboard</span></a></li>
+            <li><a href="#" data-page="employees"><i class="fas fa-users"></i> <span>Employees</span></a></li>
+            <li><a href="#" data-page="leaves"><i class="fas fa-calendar-alt"></i> <span>Leaves</span></a></li>
+            <li><a href="#" data-page="analytics"><i class="fas fa-chart-line"></i> <span>Analytics</span></a></li>
+            <li><a href="#" data-page="settings"><i class="fas fa-cog"></i> <span>Settings</span></a></li>
+        </ul>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Dashboard Page -->
+        <div class="page active" id="dashboard">
+            <h1 class="page-title">Dashboard Overview</h1>
+            
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Total Employees</h3>
+                        <div class="card-icon" style="background: linear-gradient(45deg, #4361ee, #3a0ca3);">
+                            <i class="fas fa-users"></i>
+                        </div>
+                    </div>
+                    <div class="card-value">142</div>
+                    <div class="card-info positive">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>8 new hires this month</span>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">On Leave Today</h3>
+                        <div class="card-icon" style="background: linear-gradient(45deg, #f72585, #b5179e);">
+                            <i class="fas fa-calendar-times"></i>
+                        </div>
+                    </div>
+                    <div class="card-value">12</div>
+                    <div class="card-info">
+                        <span>3 pending approvals</span>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Active Now</h3>
+                        <div class="card-icon" style="background: linear-gradient(45deg, #06d6a0, #04a777);">
+                            <i class="fas fa-user-check"></i>
+                        </div>
+                    </div>
+                    <div class="card-value">89</div>
+                    <div class="card-info">
+                        <span>87% of total workforce</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="table-container">
+                <h2 class="section-title">Recent Activity</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Employee</th>
+                            <th>Activity</th>
+                            <th>Department</th>
+                            <th>Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Sarah Johnson</td>
+                            <td>Submitted leave request</td>
+                            <td>Marketing</td>
+                            <td>10:25 AM</td>
+                        </tr>
+                        <tr>
+                            <td>Michael Chen</td>
+                            <td>Updated personal information</td>
+                            <td>Engineering</td>
+                            <td>9:45 AM</td>
+                        </tr>
+                        <tr>
+                            <td>Emma Rodriguez</td>
+                            <td>Completed performance review</td>
+                            <td>HR</td>
+                            <td>Yesterday</td>
+                        </tr>
+                        <tr>
+                            <td>David Kim</td>
+                            <td>New employee onboarding</td>
+                            <td>Sales</td>
+                            <td>Yesterday</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Employees Page -->
+        <div class="page" id="employees">
+            <h1 class="page-title">
+                Employee Management
+                <button class="btn btn-primary" id="addEmployeeBtn">
+                    <i class="fas fa-plus"></i> Add Employee
+                </button>
+            </h1>
+            
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Position</th>
+                            <th>Department</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>EMP-001</td>
+                            <td>Sarah Johnson</td>
+                            <td>Marketing Manager</td>
+                            <td>Marketing</td>
+                            <td><span class="status-badge status-approved">Active</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-primary"><i class="fas fa-eye"></i></button>
+                                <button class="btn btn-sm"><i class="fas fa-edit"></i></button>
+                                <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>EMP-002</td>
+                            <td>Michael Chen</td>
+                            <td>Senior Developer</td>
+                            <td>Engineering</td>
+                            <td><span class="status-badge status-approved">Active</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-primary"><i class="fas fa-eye"></i></button>
+                                <button class="btn btn-sm"><i class="fas fa-edit"></i></button>
+                                <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>EMP-003</td>
+                            <td>Emma Rodriguez</td>
+                            <td>HR Specialist</td>
+                            <td>Human Resources</td>
+                            <td><span class="status-badge status-approved">Active</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-primary"><i class="fas fa-eye"></i></button>
+                                <button class="btn btn-sm"><i class="fas fa-edit"></i></button>
+                                <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>EMP-004</td>
+                            <td>David Kim</td>
+                            <td>Sales Executive</td>
+                            <td>Sales</td>
+                            <td><span class="status-badge status-pending">Onboarding</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-primary"><i class="fas fa-eye"></i></button>
+                                <button class="btn btn-sm"><i class="fas fa-edit"></i></button>
+                                <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Leaves Page -->
+        <div class="page" id="leaves">
+            <h1 class="page-title">Leave Management</h1>
+            
+            <div class="tabs">
+                <div class="tab active" data-tab="apply">Apply for Leave</div>
+                <div class="tab" data-tab="manage">Manage Leaves</div>
+                <div class="tab" data-tab="calendar">Calendar View</div>
+            </div>
+            
+            <div class="tab-content" id="applyTab">
+                <div class="card">
+                    <h3 class="card-title">Apply for Leave</h3>
+                    
+                    <div class="form-group">
+                        <label for="leaveType">Leave Type</label>
+                        <select id="leaveType">
+                            <option value="">Select leave type</option>
+                            <option value="vacation">Vacation</option>
+                            <option value="sick">Sick Leave</option>
+                            <option value="personal">Personal Day</option>
+                            <option value="parental">Parental Leave</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="leaveDates">Select Dates</label>
+                        <input type="text" id="leaveDates" placeholder="Select dates" readonly>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="leaveReason">Reason</label>
+                        <textarea id="leaveReason" rows="4" placeholder="Enter reason for leave"></textarea>
+                    </div>
+                    
+                    <button class="btn btn-primary">
+                        <i class="fas fa-paper-plane"></i> Submit Request
+                    </button>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="manageTab" style="display: none;">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Employee</th>
+                                <th>Leave Type</th>
+                                <th>Dates</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Sarah Johnson</td>
+                                <td>Vacation</td>
+                                <td>Jul 25 - Jul 30, 2025</td>
+                                <td><span class="status-badge status-approved">Approved</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-success"><i class="fas fa-check"></i></button>
+                                    <button class="btn btn-sm btn-danger"><i class="fas fa-times"></i></button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Michael Chen</td>
+                                <td>Sick Leave</td>
+                                <td>Jul 20 - Jul 21, 2025</td>
+                                <td><span class="status-badge status-approved">Approved</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-success"><i class="fas fa-check"></i></button>
+                                    <button class="btn btn-sm btn-danger"><i class="fas fa-times"></i></button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>David Kim</td>
+                                <td>Personal Day</td>
+                                <td>Aug 5, 2025</td>
+                                <td><span class="status-badge status-pending">Pending</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-success"><i class="fas fa-check"></i></button>
+                                    <button class="btn btn-sm btn-danger"><i class="fas fa-times"></i></button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="calendarTab" style="display: none;">
+                <div class="calendar-container">
+                    <div class="calendar-header">
+                        <h3>July 2025</h3>
+                        <div>
+                            <button class="btn btn-sm"><i class="fas fa-chevron-left"></i></button>
+                            <button class="btn btn-sm">Today</button>
+                            <button class="btn btn-sm"><i class="fas fa-chevron-right"></i></button>
+                        </div>
+                    </div>
+                    
+                    <div class="calendar-grid">
+                        <div class="calendar-day">Sun</div>
+                        <div class="calendar-day">Mon</div>
+                        <div class="calendar-day">Tue</div>
+                        <div class="calendar-day">Wed</div>
+                        <div class="calendar-day">Thu</div>
+                        <div class="calendar-day">Fri</div>
+                        <div class="calendar-day">Sat</div>
+                        
+                        <!-- Calendar dates would be dynamically generated in a real app -->
+                        <div class="calendar-date"><div class="calendar-date-number">20</div></div>
+                        <div class="calendar-date"><div class="calendar-date-number">21</div></div>
+                        <div class="calendar-date"><div class="calendar-date-number">22</div></div>
+                        <div class="calendar-date"><div class="calendar-date-number">23</div></div>
+                        <div class="calendar-date"><div class="calendar-date-number">24</div></div>
+                        <div class="calendar-date"><div class="calendar-date-number">25</div><div class="leave-indicator approved">Sarah J.</div></div>
+                        <div class="calendar-date"><div class="calendar-date-number">26</div><div class="leave-indicator approved">Sarah J.</div></div>
+                        
+                        <div class="calendar-date"><div class="calendar-date-number">27</div><div class="leave-indicator approved">Sarah J.</div></div>
+                        <div class="calendar-date"><div class="calendar-date-number">28</div><div class="leave-indicator approved">Sarah J.</div></div>
+                        <div class="calendar-date"><div class="calendar-date-number">29</div><div class="leave-indicator approved">Sarah J.</div></div>
+                        <div class="calendar-date"><div class="calendar-date-number">30</div><div class="leave-indicator approved">Sarah J.</div></div>
+                        <div class="calendar-date"><div class="calendar-date-number">31</div></div>
+                        <div class="calendar-date"><div class="calendar-date-number">1</div></div>
+                        <div class="calendar-date"><div class="calendar-date-number">2</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Analytics Page -->
+        <div class="page" id="analytics">
+            <h1 class="page-title">HR Analytics</h1>
+            
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Department Distribution</h3>
+                        <div class="card-icon" style="background: linear-gradient(45deg, #4361ee, #3a0ca3);">
+                            <i class="fas fa-sitemap"></i>
+                        </div>
+                    </div>
+                    <canvas id="departmentChart" height="200"></canvas>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Leave Trends</h3>
+                        <div class="card-icon" style="background: linear-gradient(45deg, #f72585, #b5179e);">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                    </div>
+                    <canvas id="leaveChart" height="200"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-container">
+                <h3 class="card-title">Employee Growth</h3>
+                <canvas id="growthChart"></canvas>
+            </div>
+        </div>
+        
+        <!-- Settings Page -->
+        <div class="page" id="settings">
+            <h1 class="page-title">System Settings</h1>
+            
+            <div class="card">
+                <h3 class="card-title">General Settings</h3>
+                
+                <div class="form-group">
+                    <label for="companyName">Company Name</label>
+                    <input type="text" id="companyName" value="Tech Innovations Inc.">
+                </div>
+                
+                <div class="form-group">
+                    <label for="timezone">Timezone</label>
+                    <select id="timezone">
+                        <option value="est">Eastern Standard Time (EST)</option>
+                        <option value="pst" selected>Pacific Standard Time (PST)</option>
+                        <option value="cst">Central Standard Time (CST)</option>
+                        <option value="gmt">Greenwich Mean Time (GMT)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="leavePolicy">Default Leave Policy</label>
+                    <textarea id="leavePolicy" rows="4">Employees are entitled to 15 vacation days per year. Sick leave is unlimited with doctor's note.</textarea>
+                </div>
+                
+                <button class="btn btn-primary">
+                    <i class="fas fa-save"></i> Save Settings
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add Employee Modal -->
+    <div class="modal" id="addEmployeeModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add New Employee</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="empName">Full Name</label>
+                    <input type="text" id="empName" placeholder="Enter full name">
+                </div>
+                
+                <div class="form-group">
+                    <label for="empEmail">Email Address</label>
+                    <input type="email" id="empEmail" placeholder="Enter email">
+                </div>
+                
+                <div class="form-group">
+                    <label for="empPosition">Position</label>
+                    <input type="text" id="empPosition" placeholder="Enter position">
+                </div>
+                
+                <div class="form-group">
+                    <label for="empDepartment">Department</label>
+                    <select id="empDepartment">
+                        <option value="">Select department</option>
+                        <option value="engineering">Engineering</option>
+                        <option value="marketing">Marketing</option>
+                        <option value="sales">Sales</option>
+                        <option value="hr">Human Resources</option>
+                        <option value="finance">Finance</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="empStartDate">Start Date</label>
+                    <input type="date" id="empStartDate">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn close-modal">Cancel</button>
+                <button class="btn btn-primary">Add Employee</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Page navigation
+        document.addEventListener('DOMContentLoaded', function() {
+            // Menu toggle for mobile
+            const menuToggle = document.querySelector('.menu-toggle');
+            const sidebar = document.querySelector('.sidebar');
+            
+            menuToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('active');
+            });
+            
+            // Page navigation
+            const pageLinks = document.querySelectorAll('.sidebar-menu a');
+            const pages = document.querySelectorAll('.page');
+            
+            pageLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Remove active class from all links
+                    pageLinks.forEach(l => l.classList.remove('active'));
+                    
+                    // Add active class to clicked link
+                    this.classList.add('active');
+                    
+                    // Get target page
+                    const targetPage = this.getAttribute('data-page');
+                    
+                    // Hide all pages
+                    pages.forEach(page => page.classList.remove('active'));
+                    
+                    // Show target page
+                    document.getElementById(targetPage).classList.add('active');
+                    
+                    // Close sidebar on mobile after selection
+                    if (window.innerWidth < 992) {
+                        sidebar.classList.remove('active');
+                    }
+                });
+            });
+            
+            // Tab navigation
+            const tabs = document.querySelectorAll('.tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // Remove active class from all tabs
+                    tabs.forEach(t => t.classList.remove('active'));
+                    
+                    // Add active class to clicked tab
+                    this.classList.add('active');
+                    
+                    // Hide all tab contents
+                    tabContents.forEach(content => content.style.display = 'none');
+                    
+                    // Show target tab content
+                    const targetTab = this.getAttribute('data-tab');
+                    document.getElementById(`${targetTab}Tab`).style.display = 'block';
+                });
+            });
+            
+            // Modal functionality
+            const addEmployeeBtn = document.getElementById('addEmployeeBtn');
+            const addEmployeeModal = document.getElementById('addEmployeeModal');
+            const closeModalBtns = document.querySelectorAll('.close-modal');
+            
+            addEmployeeBtn.addEventListener('click', function() {
+                addEmployeeModal.style.display = 'flex';
+            });
+            
+            closeModalBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    addEmployeeModal.style.display = 'none';
+                });
+            });
+            
+            // Close modal when clicking outside
+            window.addEventListener('click', function(e) {
+                if (e.target === addEmployeeModal) {
+                    addEmployeeModal.style.display = 'none';
+                }
+            });
+            
+            // Initialize date picker for leave dates
+            flatpickr("#leaveDates", {
+                mode: "range",
+                dateFormat: "Y-m-d",
+                minDate: "today",
+            });
+            
+            // Initialize charts
+            initCharts();
+        });
+        
+        function initCharts() {
+            // Department distribution chart
+            const deptCtx = document.getElementById('departmentChart').getContext('2d');
+            new Chart(deptCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Engineering', 'Marketing', 'Sales', 'HR', 'Finance'],
+                    datasets: [{
+                        data: [35, 20, 25, 10, 10],
+                        backgroundColor: [
+                            '#4361ee',
+                            '#f72585',
+                            '#06d6a0',
+                            '#ff9e00',
+                            '#7209b7'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+            
+            // Leave trends chart
+            const leaveCtx = document.getElementById('leaveChart').getContext('2d');
+            new Chart(leaveCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Leave Requests',
+                        data: [12, 19, 15, 8, 11, 14],
+                        backgroundColor: '#4361ee'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+            
+            // Employee growth chart
+            const growthCtx = document.getElementById('growthChart').getContext('2d');
+            new Chart(growthCtx, {
+                type: 'line',
+                data: {
+                    labels: ['2020', '2021', '2022', '2023', '2024', '2025'],
+                    datasets: [{
+                        label: 'Total Employees',
+                        data: [45, 62, 78, 95, 120, 142],
+                        borderColor: '#4361ee',
+                        backgroundColor: 'rgba(67, 97, 238, 0.1)',
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>

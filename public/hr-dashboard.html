@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR Dashboard - Performance Management</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">HR Performance Management</div>
+            <div class="user-info">
+                <div class="user-details">
+                    <div class="user-name"></div>
+                    <div class="user-role"></div>
+                </div>
+                <button id="logoutBtn" class="btn btn-secondary btn-small">Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div id="alertContainer"></div>
+
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs">
+            <button class="nav-tab active" data-tab="dashboard">Dashboard</button>
+            <button class="nav-tab" data-tab="reviews">Performance Reviews</button>
+            <button class="nav-tab" data-tab="goals">Goals Management</button>
+            <button class="nav-tab" data-tab="feedback">Feedback</button>
+            <button class="nav-tab" data-tab="employees">Employees</button>
+        </div>
+
+        <!-- Dashboard Tab -->
+        <div id="dashboard" class="tab-pane active">
+            <div class="stats-grid" id="statsGrid">
+                <!-- Stats will be loaded here -->
+            </div>
+            
+            <!-- HR Analytics Charts -->
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 25px; margin-bottom: 25px;">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Team Performance Overview</h3>
+                    </div>
+                    <div style="height: 350px; padding: 20px;">
+                        <canvas id="teamPerformanceChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Review Status Distribution</h3>
+                    </div>
+                    <div style="height: 350px; display: flex; align-items: center; justify-content: center;">
+                        <canvas id="reviewStatusChart" width="300" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 25px;">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Department Performance</h3>
+                    </div>
+                    <div style="height: 300px; padding: 20px;">
+                        <canvas id="departmentChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Goals Completion Rate</h3>
+                    </div>
+                    <div style="height: 300px; display: flex; align-items: center; justify-content: center;">
+                        <canvas id="goalsCompletionChart" width="300" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Performance Trends Analysis</h2>
+                </div>
+                <div style="height: 400px; padding: 20px;">
+                    <canvas id="hrTrendChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reviews Tab -->
+        <div id="reviews" class="tab-pane">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Performance Reviews</h2>
+                    <button class="btn btn-primary" onclick="showModal('reviewModal')">Create New Review</button>
+                </div>
+                <div id="reviewsList">
+                    <!-- Reviews will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Goals Tab -->
+        <div id="goals" class="tab-pane">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Employee Goals</h2>
+                    <button class="btn btn-primary" onclick="showModal('goalModal')">Assign New Goal</button>
+                </div>
+                <div id="goalsList">
+                    <!-- Goals will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Feedback Tab -->
+        <div id="feedback" class="tab-pane">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">All Feedback</h2>
+                    <button class="btn btn-primary" onclick="showModal('feedbackModal')">Give Feedback</button>
+                </div>
+                <div id="feedbackList">
+                    <!-- Feedback will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Employees Tab -->
+        <div id="employees" class="tab-pane">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Employee List</h2>
+                </div>
+                <div id="employeesList">
+                    <!-- Employees will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Review Modal -->
+    <div id="reviewModal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <h3 class="modal-title">Create Performance Review</h3>
+                <button type="button" class="close" onclick="hideModal('reviewModal')">&times;</button>
+            </div>
+            <form id="reviewForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="reviewEmployee" class="form-label">Employee</label>
+                        <select id="reviewEmployee" class="form-select" required>
+                            <option value="">Select Employee</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="reviewPeriodStart" class="form-label">Review Period Start</label>
+                        <input type="date" id="reviewPeriodStart" class="form-input" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="reviewPeriodEnd" class="form-label">Review Period End</label>
+                        <input type="date" id="reviewPeriodEnd" class="form-input" required>
+                    </div>
+                </div>
+
+                <h4 style="margin: 20px 0 15px 0;">Performance Ratings (1-5)</h4>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="overallRating" class="form-label">Overall Rating</label>
+                        <input type="number" id="overallRating" class="form-input" min="1" max="5" step="0.1" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="technicalSkills" class="form-label">Technical Skills</label>
+                        <input type="number" id="technicalSkills" class="form-input" min="1" max="5" step="0.1" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="communication" class="form-label">Communication</label>
+                        <input type="number" id="communication" class="form-input" min="1" max="5" step="0.1" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="teamwork" class="form-label">Teamwork</label>
+                        <input type="number" id="teamwork" class="form-input" min="1" max="5" step="0.1" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="leadership" class="form-label">Leadership</label>
+                        <input type="number" id="leadership" class="form-input" min="1" max="5" step="0.1" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="punctuality" class="form-label">Punctuality</label>
+                        <input type="number" id="punctuality" class="form-input" min="1" max="5" step="0.1" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="goalsAchieved" class="form-label">Goals Achieved</label>
+                        <input type="number" id="goalsAchieved" class="form-input" min="1" max="5" step="0.1" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="reviewComments" class="form-label">Comments</label>
+                    <textarea id="reviewComments" class="form-textarea" rows="3"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="reviewFeedback" class="form-label">Feedback & Recommendations</label>
+                    <textarea id="reviewFeedback" class="form-textarea" rows="3"></textarea>
+                </div>
+                
+                <div style="text-align: right; margin-top: 20px;">
+                    <button type="button" class="btn btn-secondary" onclick="hideModal('reviewModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Review</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Goal Modal -->
+    <div id="goalModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Assign New Goal</h3>
+                <button type="button" class="close" onclick="hideModal('goalModal')">&times;</button>
+            </div>
+            <form id="goalForm">
+                <div class="form-group">
+                    <label for="goalEmployee" class="form-label">Employee</label>
+                    <select id="goalEmployee" class="form-select" required>
+                        <option value="">Select Employee</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="goalTitle" class="form-label">Goal Title</label>
+                    <input type="text" id="goalTitle" class="form-input" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="goalDescription" class="form-label">Description</label>
+                    <textarea id="goalDescription" class="form-textarea" rows="4"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="goalTargetDate" class="form-label">Target Date</label>
+                    <input type="date" id="goalTargetDate" class="form-input">
+                </div>
+                
+                <div style="text-align: right; margin-top: 20px;">
+                    <button type="button" class="btn btn-secondary" onclick="hideModal('goalModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Assign Goal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Feedback Modal -->
+    <div id="feedbackModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Give Feedback</h3>
+                <button type="button" class="close" onclick="hideModal('feedbackModal')">&times;</button>
+            </div>
+            <form id="feedbackForm">
+                <div class="form-group">
+                    <label for="feedbackEmployee" class="form-label">Employee</label>
+                    <select id="feedbackEmployee" class="form-select" required>
+                        <option value="">Select Employee</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="feedbackType" class="form-label">Feedback Type</label>
+                    <select id="feedbackType" class="form-select" required>
+                        <option value="supervisor">Supervisor Feedback</option>
+                        <option value="peer">Peer Feedback</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="feedbackRating" class="form-label">Overall Rating (1-5)</label>
+                    <input type="number" id="feedbackRating" class="form-input" min="1" max="5" step="0.1">
+                </div>
+                
+                <div class="form-group">
+                    <label for="feedbackText" class="form-label">Feedback</label>
+                    <textarea id="feedbackText" class="form-textarea" rows="5" required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="isAnonymous"> Submit as Anonymous
+                    </label>
+                </div>
+                
+                <div style="text-align: right; margin-top: 20px;">
+                    <button type="button" class="btn btn-secondary" onclick="hideModal('feedbackModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Submit Feedback</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/common.js"></script>
+    <script>
+        let currentData = {
+            stats: null,
+            reviews: [],
+            goals: [],
+            feedback: [],
+            employees: []
+        };
+
+        // Chart instances
+        let teamPerformanceChart = null;
+        let reviewStatusChart = null;
+        let departmentChart = null;
+        let goalsCompletionChart = null;
+        let hrTrendChart = null;
+
+        // Load dashboard stats
+        async function loadDashboardStats() {
+            try {
+                showLoading('statsGrid');
+                const stats = await hrApp.apiRequest('/performance/dashboard/stats');
+                currentData.stats = stats;
+                displayStats(stats);
+                await loadHRCharts();
+            } catch (error) {
+                hrApp.showAlert('Failed to load dashboard statistics');
+            }
+        }
+
+        // Display stats
+        function displayStats(stats) {
+            const statsGrid = document.getElementById('statsGrid');
+            statsGrid.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-value">${stats.totalEmployees}</div>
+                    <div class="stat-label">Total Employees</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stats.totalReviews}</div>
+                    <div class="stat-label">Total Reviews</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stats.avgRating}</div>
+                    <div class="stat-label">Average Rating</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stats.pendingReviews}</div>
+                    <div class="stat-label">Pending Reviews</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stats.totalGoals}</div>
+                    <div class="stat-label">Total Goals</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stats.completedGoals}</div>
+                    <div class="stat-label">Completed Goals</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stats.avgProgress}%</div>
+                    <div class="stat-label">Average Progress</div>
+                </div>
+            `;
+        }
+
+        // Load and display HR dashboard charts
+        async function loadHRCharts() {
+            try {
+                // Load data for charts
+                if (currentData.reviews.length === 0) {
+                    const reviewData = await hrApp.apiRequest('/performance/reviews/all');
+                    currentData.reviews = reviewData.reviews;
+                }
+                
+                if (currentData.goals.length === 0) {
+                    const goalData = await hrApp.apiRequest('/performance/goals/all');
+                    currentData.goals = goalData.goals;
+                }
+                
+                if (currentData.employees.length === 0) {
+                    const empData = await hrApp.apiRequest('/performance/employees');
+                    currentData.employees = empData.employees;
+                }
+                
+                createTeamPerformanceChart();
+                createReviewStatusChart();
+                createDepartmentChart();
+                createGoalsCompletionChart();
+                createHRTrendChart();
+            } catch (error) {
+                console.error('Error loading HR charts:', error);
+            }
+        }
+
+        // Create team performance chart
+        function createTeamPerformanceChart() {
+            const ctx = document.getElementById('teamPerformanceChart').getContext('2d');
+            
+            // Sample team performance data
+            const employees = ['John Doe', 'Jane Smith', 'Mike Wilson', 'Sarah Davis', 'Tom Brown'];
+            const performanceData = [4.2, 4.5, 3.8, 4.1, 4.3];
+            const goalProgress = [75, 85, 60, 80, 70];
+
+            if (teamPerformanceChart) {
+                teamPerformanceChart.destroy();
+            }
+
+            teamPerformanceChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: employees,
+                    datasets: [{
+                        label: 'Performance Rating',
+                        data: performanceData,
+                        backgroundColor: 'rgba(102, 126, 234, 0.8)',
+                        borderColor: 'rgba(102, 126, 234, 1)',
+                        borderWidth: 2,
+                        yAxisID: 'y'
+                    }, {
+                        label: 'Goal Progress %',
+                        data: goalProgress,
+                        backgroundColor: 'rgba(46, 204, 113, 0.8)',
+                        borderColor: 'rgba(46, 204, 113, 1)',
+                        borderWidth: 2,
+                        yAxisID: 'y1'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            display: true
+                        },
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            min: 0,
+                            max: 5,
+                            title: {
+                                display: true,
+                                text: 'Performance Rating'
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            min: 0,
+                            max: 100,
+                            title: {
+                                display: true,
+                                text: 'Goal Progress %'
+                            },
+                            grid: {
+                                drawOnChartArea: false
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Create review status chart
+        function createReviewStatusChart() {
+            const ctx = document.getElementById('reviewStatusChart').getContext('2d');
+            
+            const statusData = [1, 0, 0, 0]; // submitted, draft, reviewed, approved
+            const statusLabels = ['Submitted', 'Draft', 'Reviewed', 'Approved'];
+            const colors = [
+                'rgba(102, 126, 234, 0.8)',
+                'rgba(255, 193, 7, 0.8)',
+                'rgba(23, 162, 184, 0.8)',
+                'rgba(40, 167, 69, 0.8)'
+            ];
+
+            if (reviewStatusChart) {
+                reviewStatusChart.destroy();
+            }
+
+            reviewStatusChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: statusLabels,
+                    datasets: [{
+                        data: statusData,
+                        backgroundColor: colors,
+                        borderColor: colors.map(color => color.replace('0.8', '1')),
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Create department performance chart
+        function createDepartmentChart() {
+            const ctx = document.getElementById('departmentChart').getContext('2d');
+            
+            const departments = ['Engineering', 'Human Resources', 'Sales', 'Marketing', 'Finance'];
+            const avgRatings = [4.2, 4.5, 3.9, 4.0, 4.1];
+            
+            if (departmentChart) {
+                departmentChart.destroy();
+            }
+
+            departmentChart = new Chart(ctx, {
+                type: 'horizontalBar',
+                data: {
+                    labels: departments,
+                    datasets: [{
+                        label: 'Average Performance Rating',
+                        data: avgRatings,
+                        backgroundColor: [
+                            'rgba(102, 126, 234, 0.8)',
+                            'rgba(46, 204, 113, 0.8)',
+                            'rgba(155, 89, 182, 0.8)',
+                            'rgba(241, 196, 15, 0.8)',
+                            'rgba(231, 76, 60, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgba(102, 126, 234, 1)',
+                            'rgba(46, 204, 113, 1)',
+                            'rgba(155, 89, 182, 1)',
+                            'rgba(241, 196, 15, 1)',
+                            'rgba(231, 76, 60, 1)'
+                        ],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            min: 0,
+                            max: 5,
+                            title: {
+                                display: true,
+                                text: 'Performance Rating'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Create goals completion rate chart
+        function createGoalsCompletionChart() {
+            const ctx = document.getElementById('goalsCompletionChart').getContext('2d');
+            
+            const completionData = [0, 2, 0]; // completed, in_progress, not_started
+            const labels = ['Completed', 'In Progress', 'Not Started'];
+            const colors = [
+                'rgba(40, 167, 69, 0.8)',
+                'rgba(255, 193, 7, 0.8)',
+                'rgba(108, 117, 125, 0.8)'
+            ];
+
+            if (goalsCompletionChart) {
+                goalsCompletionChart.destroy();
+            }
+
+            goalsCompletionChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: completionData,
+                        backgroundColor: colors,
+                        borderColor: colors.map(color => color.replace('0.8', '1')),
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Create HR trend chart
+        function createHRTrendChart() {
+            const ctx = document.getElementById('hrTrendChart').getContext('2d');
+            
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const avgPerformance = [3.9, 4.0, 4.1, 4.0, 4.2, 4.1, 4.3, 4.2, 4.1, 4.3, 4.4, 4.2];
+            const employeeSatisfaction = [3.5, 3.7, 3.8, 3.9, 4.0, 4.1, 4.2, 4.1, 4.0, 4.2, 4.3, 4.1];
+            const goalCompletionRate = [65, 70, 72, 75, 78, 80, 82, 85, 87, 88, 90, 85];
+
+            if (hrTrendChart) {
+                hrTrendChart.destroy();
+            }
+
+            hrTrendChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: months,
+                    datasets: [{
+                        label: 'Avg Performance Rating',
+                        data: avgPerformance,
+                        borderColor: 'rgba(102, 126, 234, 1)',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        yAxisID: 'y'
+                    }, {
+                        label: 'Employee Satisfaction',
+                        data: employeeSatisfaction,
+                        borderColor: 'rgba(46, 204, 113, 1)',
+                        backgroundColor: 'rgba(46, 204, 113, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        yAxisID: 'y'
+                    }, {
+                        label: 'Goal Completion Rate %',
+                        data: goalCompletionRate,
+                        borderColor: 'rgba(155, 89, 182, 1)',
+                        backgroundColor: 'rgba(155, 89, 182, 0.1)',
+                        borderWidth: 3,
+                        fill: false,
+                        tension: 0.4,
+                        yAxisID: 'y1'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top'
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            display: true,
+                            grid: {
+                                display: false
+                            }
+                        },
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            min: 0,
+                            max: 5,
+                            title: {
+                                display: true,
+                                text: 'Rating'
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            min: 0,
+                            max: 100,
+                            title: {
+                                display: true,
+                                text: 'Completion Rate %'
+                            },
+                            grid: {
+                                drawOnChartArea: false
+                            }
+                        }
+                    },
+                    interaction: {
+                        mode: 'nearest',
+                        axis: 'x',
+                        intersect: false
+                    }
+                }
+            });
+        }
+
+        // Load employees
+        async function loadEmployees() {
+            try {
+                const data = await hrApp.apiRequest('/performance/employees');
+                currentData.employees = data.employees;
+                populateEmployeeDropdowns(data.employees);
+                displayEmployees(data.employees);
+            } catch (error) {
+                hrApp.showAlert('Failed to load employees');
+            }
+        }
+
+        // Populate employee dropdowns
+        function populateEmployeeDropdowns(employees) {
+            const dropdowns = ['reviewEmployee', 'goalEmployee', 'feedbackEmployee'];
+            
+            dropdowns.forEach(dropdownId => {
+                const dropdown = document.getElementById(dropdownId);
+                if (dropdown) {
+                    dropdown.innerHTML = '<option value="">Select Employee</option>' +
+                        employees.filter(emp => emp.role === 'employee')
+                                .map(emp => `<option value="${emp.employee_id}">${emp.name} (${emp.department})</option>`)
+                                .join('');
+                }
+            });
+        }
+
+        // Display employees
+        function displayEmployees(employees) {
+            const employeesList = document.getElementById('employeesList');
+            
+            if (employees.length === 0) {
+                employeesList.innerHTML = '<p>No employees found.</p>';
+                return;
+            }
+
+            const employeesTable = `
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Employee ID</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Department</th>
+                                <th>Position</th>
+                                <th>Role</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${employees.map(emp => `
+                                <tr>
+                                    <td><strong>${emp.employee_id}</strong></td>
+                                    <td>${emp.name}</td>
+                                    <td>${emp.email}</td>
+                                    <td>${emp.department}</td>
+                                    <td>${emp.position}</td>
+                                    <td>${hrApp.formatStatus(emp.role)}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            employeesList.innerHTML = employeesTable;
+        }
+
+        // Load performance reviews
+        async function loadReviews() {
+            try {
+                showLoading('reviewsList');
+                const data = await hrApp.apiRequest('/performance/reviews/all');
+                currentData.reviews = data.reviews;
+                displayReviews(data.reviews);
+            } catch (error) {
+                hrApp.showAlert('Failed to load performance reviews');
+            }
+        }
+
+        // Display reviews
+        function displayReviews(reviews) {
+            const reviewsList = document.getElementById('reviewsList');
+            
+            if (reviews.length === 0) {
+                reviewsList.innerHTML = '<p>No performance reviews found.</p>';
+                return;
+            }
+
+            const reviewsTable = `
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Employee</th>
+                                <th>Department</th>
+                                <th>Review Period</th>
+                                <th>Overall Rating</th>
+                                <th>Reviewer</th>
+                                <th>Status</th>
+                                <th>Date Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${reviews.map(review => `
+                                <tr>
+                                    <td><strong>${review.employee_name}</strong></td>
+                                    <td>${review.department}</td>
+                                    <td>${hrApp.formatDate(review.review_period_start)} - ${hrApp.formatDate(review.review_period_end)}</td>
+                                    <td>${hrApp.formatRating(review.overall_rating)}</td>
+                                    <td>${review.reviewer_name}</td>
+                                    <td>${hrApp.formatStatus(review.status)}</td>
+                                    <td>${hrApp.formatDate(review.created_at)}</td>
+                                    <td>
+                                        <button class="btn btn-primary btn-small" onclick="viewReviewDetails(${review.id})">
+                                            View Details
+                                        </button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            reviewsList.innerHTML = reviewsTable;
+        }
+
+        // Load goals
+        async function loadGoals() {
+            try {
+                showLoading('goalsList');
+                const data = await hrApp.apiRequest('/performance/goals/all');
+                currentData.goals = data.goals;
+                displayGoals(data.goals);
+            } catch (error) {
+                hrApp.showAlert('Failed to load goals');
+            }
+        }
+
+        // Display goals
+        function displayGoals(goals) {
+            const goalsList = document.getElementById('goalsList');
+            
+            if (goals.length === 0) {
+                goalsList.innerHTML = '<p>No goals found.</p>';
+                return;
+            }
+
+            const goalsTable = `
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Employee</th>
+                                <th>Department</th>
+                                <th>Goal Title</th>
+                                <th>Description</th>
+                                <th>Progress</th>
+                                <th>Status</th>
+                                <th>Target Date</th>
+                                <th>Created By</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${goals.map(goal => `
+                                <tr>
+                                    <td><strong>${goal.employee_name}</strong></td>
+                                    <td>${goal.department}</td>
+                                    <td>${goal.title}</td>
+                                    <td>${goal.description || 'No description'}</td>
+                                    <td>${hrApp.formatProgress(goal.progress)}</td>
+                                    <td>${hrApp.formatStatus(goal.status)}</td>
+                                    <td>${hrApp.formatDate(goal.target_date)}</td>
+                                    <td>${goal.created_by_name || 'System'}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            goalsList.innerHTML = goalsTable;
+        }
+
+        // Load feedback
+        async function loadFeedback() {
+            try {
+                showLoading('feedbackList');
+                const data = await hrApp.apiRequest('/performance/feedback/all');
+                currentData.feedback = data.feedback;
+                displayFeedback(data.feedback);
+            } catch (error) {
+                hrApp.showAlert('Failed to load feedback');
+            }
+        }
+
+        // Display feedback
+        function displayFeedback(feedback) {
+            const feedbackList = document.getElementById('feedbackList');
+            
+            if (feedback.length === 0) {
+                feedbackList.innerHTML = '<p>No feedback found.</p>';
+                return;
+            }
+
+            const feedbackCards = feedback.map(item => `
+                <div class="card" style="margin-bottom: 15px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+                        <div>
+                            <strong>To: ${item.employee_name}</strong> <small>(${item.department})</small><br>
+                            <strong>From: ${item.is_anonymous ? 'Anonymous' : item.from_employee_name}</strong>
+                            <span class="status-badge status-${item.type}" style="margin-left: 10px;">${item.type}</span>
+                        </div>
+                        <div style="text-align: right;">
+                            ${item.rating ? hrApp.formatRating(item.rating) : ''}
+                            <div><small style="color: #666;">${hrApp.formatDate(item.created_at)}</small></div>
+                        </div>
+                    </div>
+                    <p>${item.feedback_text}</p>
+                </div>
+            `).join('');
+
+            feedbackList.innerHTML = feedbackCards;
+        }
+
+        // View review details
+        function viewReviewDetails(reviewId) {
+            const review = currentData.reviews.find(r => r.id === reviewId);
+            if (!review) return;
+
+            alert(`Review Details for ${review.employee_name}:
+            
+Overall Rating: ${review.overall_rating}/5
+Technical Skills: ${review.technical_skills}/5
+Communication: ${review.communication}/5
+Teamwork: ${review.teamwork}/5
+Leadership: ${review.leadership}/5
+Punctuality: ${review.punctuality}/5
+Goals Achieved: ${review.goals_achieved}/5
+
+Comments: ${review.comments || 'No comments'}
+Feedback: ${review.feedback || 'No feedback'}`);
+        }
+
+        // Handle review form submission
+        document.getElementById('reviewForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const requiredFields = [
+                'reviewEmployee', 'reviewPeriodStart', 'reviewPeriodEnd',
+                'overallRating', 'technicalSkills', 'communication',
+                'teamwork', 'leadership', 'punctuality', 'goalsAchieved'
+            ];
+            
+            if (!hrApp.validateRequired(requiredFields)) {
+                return;
+            }
+
+            try {
+                const reviewData = {
+                    employeeId: document.getElementById('reviewEmployee').value,
+                    reviewPeriodStart: document.getElementById('reviewPeriodStart').value,
+                    reviewPeriodEnd: document.getElementById('reviewPeriodEnd').value,
+                    overallRating: parseFloat(document.getElementById('overallRating').value),
+                    technicalSkills: parseFloat(document.getElementById('technicalSkills').value),
+                    communication: parseFloat(document.getElementById('communication').value),
+                    teamwork: parseFloat(document.getElementById('teamwork').value),
+                    leadership: parseFloat(document.getElementById('leadership').value),
+                    punctuality: parseFloat(document.getElementById('punctuality').value),
+                    goalsAchieved: parseFloat(document.getElementById('goalsAchieved').value),
+                    comments: document.getElementById('reviewComments').value,
+                    feedback: document.getElementById('reviewFeedback').value
+                };
+
+                await hrApp.apiRequest('/performance/reviews', {
+                    method: 'POST',
+                    body: JSON.stringify(reviewData)
+                });
+
+                hrApp.showAlert('Performance review created successfully!', 'success');
+                hrApp.hideModal('reviewModal');
+                document.getElementById('reviewForm').reset();
+                loadReviews();
+                loadDashboardStats();
+            } catch (error) {
+                hrApp.showAlert(error.message || 'Failed to create review');
+            }
+        });
+
+        // Handle goal form submission
+        document.getElementById('goalForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (!hrApp.validateRequired(['goalEmployee', 'goalTitle'])) {
+                return;
+            }
+
+            try {
+                const goalData = {
+                    employeeId: document.getElementById('goalEmployee').value,
+                    title: document.getElementById('goalTitle').value,
+                    description: document.getElementById('goalDescription').value,
+                    targetDate: document.getElementById('goalTargetDate').value
+                };
+
+                await hrApp.apiRequest('/performance/goals', {
+                    method: 'POST',
+                    body: JSON.stringify(goalData)
+                });
+
+                hrApp.showAlert('Goal assigned successfully!', 'success');
+                hrApp.hideModal('goalModal');
+                document.getElementById('goalForm').reset();
+                loadGoals();
+                loadDashboardStats();
+            } catch (error) {
+                hrApp.showAlert(error.message || 'Failed to assign goal');
+            }
+        });
+
+        // Handle feedback form submission
+        document.getElementById('feedbackForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (!hrApp.validateRequired(['feedbackEmployee', 'feedbackType', 'feedbackText'])) {
+                return;
+            }
+
+            try {
+                const feedbackData = {
+                    employeeId: document.getElementById('feedbackEmployee').value,
+                    type: document.getElementById('feedbackType').value,
+                    feedbackText: document.getElementById('feedbackText').value,
+                    rating: document.getElementById('feedbackRating').value ? parseFloat(document.getElementById('feedbackRating').value) : null,
+                    isAnonymous: document.getElementById('isAnonymous').checked
+                };
+
+                await hrApp.apiRequest('/performance/feedback', {
+                    method: 'POST',
+                    body: JSON.stringify(feedbackData)
+                });
+
+                hrApp.showAlert('Feedback submitted successfully!', 'success');
+                hrApp.hideModal('feedbackModal');
+                document.getElementById('feedbackForm').reset();
+                loadFeedback();
+            } catch (error) {
+                hrApp.showAlert(error.message || 'Failed to submit feedback');
+            }
+        });
+
+        // Tab change event listeners
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.addEventListener('click', async () => {
+                const tabName = tab.dataset.tab;
+                
+                switch (tabName) {
+                    case 'dashboard':
+                        if (!currentData.stats) await loadDashboardStats();
+                        break;
+                    case 'reviews':
+                        if (currentData.reviews.length === 0) {
+                            await loadEmployees();
+                            await loadReviews();
+                        }
+                        break;
+                    case 'goals':
+                        if (currentData.goals.length === 0) {
+                            await loadEmployees();
+                            await loadGoals();
+                        }
+                        break;
+                    case 'feedback':
+                        if (currentData.feedback.length === 0) {
+                            await loadEmployees();
+                            await loadFeedback();
+                        }
+                        break;
+                    case 'employees':
+                        if (currentData.employees.length === 0) await loadEmployees();
+                        break;
+                }
+            });
+        });
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadDashboardStats();
+            await loadEmployees();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR Management Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --success: #4cc9f0;
+            --warning: #f72585;
+            --card-bg: #ffffff;
+            --sidebar-bg: #2b2d42;
+            --sidebar-hover: #3d405b;
+            --header-height: 70px;
+            --sidebar-width: 250px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
+            min-height: 100vh;
+            display: flex;
+            color: var(--dark);
+            overflow-x: hidden;
+        }
+        
+        /* Top Bar */
+        .top-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: var(--header-height);
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            padding: 0 30px;
+            z-index: 1000;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .logo i {
+            color: var(--primary);
+            font-size: 24px;
+        }
+        
+        .top-bar .admin-info {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .admin-name {
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .admin-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .logout-btn {
+            background: linear-gradient(45deg, var(--warning), #b5179e);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(247, 37, 133, 0.4);
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--sidebar-bg);
+            height: 100vh;
+            padding-top: calc(var(--header-height) + 20px);
+            position: fixed;
+            left: 0;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+        }
+        
+        .sidebar-menu {
+            list-style: none;
+            padding: 0 20px;
+        }
+        
+        .sidebar-menu li {
+            margin-bottom: 5px;
+        }
+        
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .sidebar-menu a:hover, .sidebar-menu a.active {
+            background-color: var(--sidebar-hover);
+            color: white;
+        }
+        
+        .sidebar-menu i {
+            margin-right: 12px;
+            font-size: 18px;
+            width: 24px;
+            text-align: center;
+        }
+        
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: calc(var(--header-height) + 20px) 30px 30px;
+            transition: margin-left 0.3s ease;
+        }
+        
+        .page-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 30px;
+            color: var(--dark);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        /* Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            padding: 25px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--gray);
+        }
+        
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+        }
+        
+        .card-value {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: var(--dark);
+        }
+        
+        .card-info {
+            font-size: 14px;
+            color: var(--gray);
+            display: flex;
+            align-items: center;
+        }
+        
+        .card-info.positive {
+            color: #06d6a0;
+        }
+        
+        .card-info.negative {
+            color: var(--warning);
+        }
+        
+        /* Button */
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.4);
+        }
+        
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 14px;
+        }
+        
+        .btn-success {
+            background: linear-gradient(45deg, #06d6a0, #04a777);
+            color: white;
+        }
+        
+        .btn-danger {
+            background: linear-gradient(45deg, #f72585, #b5179e);
+            color: white;
+        }
+        
+        /* Tabs */
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #e0e0e0;
+            margin-bottom: 20px;
+        }
+        
+        .tab {
+            padding: 12px 24px;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--gray);
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .tab.active {
+            color: var(--primary);
+            border-bottom: 3px solid var(--primary);
+        }
+        
+        /* Table */
+        .table-container {
+            background-color: var(--card-bg);
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            padding: 25px;
+            overflow: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th {
+            text-align: left;
+            padding: 15px;
+            font-weight: 600;
+            color: var(--gray);
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        tr:hover td {
+            background-color: #f9f9f9;
+        }
+        
+        /* Calendar */
+        .calendar-container {
+            background-color: var(--card-bg);
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+        }
+        
+        .calendar-day {
+            text-align: center;
+            font-weight: 600;
+            padding: 10px 0;
+            color: var(--gray);
+        }
+        
+        .calendar-date {
+            height: 80px;
+            border: 1px solid #e0e0e0;
+            padding: 5px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .calendar-date:hover {
+            background-color: #f0f5ff;
+        }
+        
+        .calendar-date-number {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            font-size: 14px;
+        }
+        
+        .leave-indicator {
+            position: absolute;
+            bottom: 5px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 12px;
+            color: white;
+            padding: 2px;
+            border-radius: 3px;
+        }
+        
+        .approved {
+            background-color: #06d6a0;
+        }
+        
+        .pending {
+            background-color: #ffd166;
+        }
+        
+        .rejected {
+            background-color: #f72585;
+        }
+        
+        /* Forms */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--gray);
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow: auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-body {
+            padding: 20px;
+        }
+        
+        .modal-footer {
+            padding: 20px;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--gray);
+        }
+        
+        /* Charts */
+        .chart-container {
+            background-color: var(--card-bg);
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            padding: 25px;
+            margin-bottom: 30px;
+            height: 400px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .menu-toggle {
+                display: block;
+            }
+        }
+        
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--primary);
+            margin-right: 15px;
+        }
+        
+        .page {
+            display: none;
+        }
+        
+        .page.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .status-pending {
+            background-color: #ffd166;
+            color: #8a6800;
+        }
+        
+        .status-approved {
+            background-color: #06d6a0;
+            color: #005638;
+        }
+        
+        .status-rejected {
+            background-color: #f72585;
+            color: #8a0034;
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <button class="menu-toggle">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="logo">
+            <i class="fas fa-users-cog"></i>
+            <h2>HR Management System</h2>
+        </div>
+        <div class="admin-info">
+            <span class="admin-name" id="adminName">Admin</span>
+            <div class="admin-avatar" id="adminAvatar">A</div>
+            <button class="logout-btn" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </div>
+    </div>
+    
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <ul class="sidebar-menu">
+            <li><a href="#" class="active" data-page="dashboard"><i class="fas fa-home"></i> <span>Dashboard</span></a></li>
+            <li><a href="#" data-page="employees"><i class="fas fa-users"></i> <span>Employees</span></a></li>
+            <li><a href="#" data-page="performance"><i class="fas fa-chart-line"></i> <span>Performance</span></a></li>
+            <li><a href="#" data-page="leaves"><i class="fas fa-calendar-alt"></i> <span>Leaves</span></a></li>
+            <li><a href="#" data-page="analytics"><i class="fas fa-chart-bar"></i> <span>Analytics</span></a></li>
+            <li><a href="#" data-page="settings"><i class="fas fa-cog"></i> <span>Settings</span></a></li>
+        </ul>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Dashboard Page -->
+        <div class="page active" id="dashboard">
+            <h1 class="page-title">Dashboard Overview</h1>
+            
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Total Employees</h3>
+                        <div class="card-icon" style="background: linear-gradient(45deg, #4361ee, #3a0ca3);">
+                            <i class="fas fa-users"></i>
+                        </div>
+                    </div>
+                    <div class="card-value" id="totalEmployees">0</div>
+                    <div class="card-info positive">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>Active in system</span>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Performance Reviews</h3>
+                        <div class="card-icon" style="background: linear-gradient(45deg, #f72585, #b5179e);">
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                    <div class="card-value" id="totalReviews">0</div>
+                    <div class="card-info">
+                        <span>Completed reviews</span>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Active Goals</h3>
+                        <div class="card-icon" style="background: linear-gradient(45deg, #06d6a0, #04a777);">
+                            <i class="fas fa-bullseye"></i>
+                        </div>
+                    </div>
+                    <div class="card-value" id="activeGoals">0</div>
+                    <div class="card-info">
+                        <span>Goals in progress</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="table-container">
+                <h2 class="card-title">Recent Activity</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Employee</th>
+                            <th>Activity</th>
+                            <th>Department</th>
+                            <th>Time</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recentActivity">
+                        <tr>
+                            <td colspan="4" style="text-align: center; color: var(--gray);">Loading...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Employees Page -->
+        <div class="page" id="employees">
+            <h1 class="page-title">
+                Employee Management
+                <button class="btn btn-primary" id="addEmployeeBtn">
+                    <i class="fas fa-plus"></i> Add Employee
+                </button>
+            </h1>
+            
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Position</th>
+                            <th>Department</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="employeesTable">
+                        <tr>
+                            <td colspan="6" style="text-align: center; color: var(--gray);">Loading...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Performance Page -->
+        <div class="page" id="performance">
+            <h1 class="page-title">Performance Management</h1>
+            
+            <div class="tabs">
+                <div class="tab active" data-tab="reviews">Performance Reviews</div>
+                <div class="tab" data-tab="goals">Goals & Objectives</div>
+                <div class="tab" data-tab="feedback">Feedback</div>
+            </div>
+            
+            <div class="tab-content" id="reviewsTab">
+                <div class="table-container">
+                    <div class="card-header">
+                        <h3 class="card-title">Performance Reviews</h3>
+                        <button class="btn btn-primary" onclick="createReview()">
+                            <i class="fas fa-plus"></i> Create Review
+                        </button>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Employee</th>
+                                <th>Period</th>
+                                <th>Overall Rating</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="reviewsTable">
+                            <tr>
+                                <td colspan="5" style="text-align: center; color: var(--gray);">Loading...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="goalsTab" style="display: none;">
+                <div class="table-container">
+                    <div class="card-header">
+                        <h3 class="card-title">Goals & Objectives</h3>
+                        <button class="btn btn-primary" onclick="createGoal()">
+                            <i class="fas fa-plus"></i> Create Goal
+                        </button>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Goal</th>
+                                <th>Employee</th>
+                                <th>Target Date</th>
+                                <th>Progress</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="goalsTable">
+                            <tr>
+                                <td colspan="5" style="text-align: center; color: var(--gray);">Loading...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="feedbackTab" style="display: none;">
+                <div class="table-container">
+                    <h3 class="card-title">Employee Feedback</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Employee</th>
+                                <th>Type</th>
+                                <th>Rating</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="feedbackTable">
+                            <tr>
+                                <td colspan="5" style="text-align: center; color: var(--gray);">Loading...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Leaves Page -->
+        <div class="page" id="leaves">
+            <h1 class="page-title">Leave Management</h1>
+            
+            <div class="table-container">
+                <h3 class="card-title">Leave Requests</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Employee</th>
+                            <th>Leave Type</th>
+                            <th>Dates</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Sarah Johnson</td>
+                            <td>Vacation</td>
+                            <td>Jul 25 - Jul 30, 2025</td>
+                            <td><span class="status-badge status-approved">Approved</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-success"><i class="fas fa-check"></i></button>
+                                <button class="btn btn-sm btn-danger"><i class="fas fa-times"></i></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Michael Chen</td>
+                            <td>Sick Leave</td>
+                            <td>Jul 20 - Jul 21, 2025</td>
+                            <td><span class="status-badge status-approved">Approved</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-success"><i class="fas fa-check"></i></button>
+                                <button class="btn btn-sm btn-danger"><i class="fas fa-times"></i></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>David Kim</td>
+                            <td>Personal Day</td>
+                            <td>Aug 5, 2025</td>
+                            <td><span class="status-badge status-pending">Pending</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-success"><i class="fas fa-check"></i></button>
+                                <button class="btn btn-sm btn-danger"><i class="fas fa-times"></i></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Analytics Page -->
+        <div class="page" id="analytics">
+            <h1 class="page-title">HR Analytics</h1>
+            
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Department Distribution</h3>
+                        <div class="card-icon" style="background: linear-gradient(45deg, #4361ee, #3a0ca3);">
+                            <i class="fas fa-sitemap"></i>
+                        </div>
+                    </div>
+                    <canvas id="departmentChart" height="200"></canvas>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Performance Overview</h3>
+                        <div class="card-icon" style="background: linear-gradient(45deg, #f72585, #b5179e);">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                    </div>
+                    <canvas id="performanceChart" height="200"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-container">
+                <h3 class="card-title">Monthly Trends</h3>
+                <canvas id="trendsChart"></canvas>
+            </div>
+        </div>
+        
+        <!-- Settings Page -->
+        <div class="page" id="settings">
+            <h1 class="page-title">System Settings</h1>
+            
+            <div class="card">
+                <h3 class="card-title">General Settings</h3>
+                
+                <div class="form-group">
+                    <label for="companyName">Company Name</label>
+                    <input type="text" id="companyName" value="HR Management System">
+                </div>
+                
+                <div class="form-group">
+                    <label for="timezone">Timezone</label>
+                    <select id="timezone">
+                        <option value="est">Eastern Standard Time (EST)</option>
+                        <option value="pst" selected>Pacific Standard Time (PST)</option>
+                        <option value="cst">Central Standard Time (CST)</option>
+                        <option value="gmt">Greenwich Mean Time (GMT)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="leavePolicy">Default Leave Policy</label>
+                    <textarea id="leavePolicy" rows="4">Employees are entitled to leave days based on company policy. All leave requests must be approved by HR.</textarea>
+                </div>
+                
+                <button class="btn btn-primary">
+                    <i class="fas fa-save"></i> Save Settings
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Global variables
+        let currentUser = null;
+        let allEmployees = [];
+        let allReviews = [];
+        let allGoals = [];
+        let allFeedback = [];
+
+        // Initialize application
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check authentication
+            checkAuth();
+            
+            // Initialize UI
+            initializeUI();
+            
+            // Load data
+            loadDashboardData();
+        });
+
+        function checkAuth() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = '/login.html';
+                return;
+            }
+
+            // Decode token to get user info
+            try {
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                currentUser = payload;
+                
+                // Update admin info
+                if (currentUser.name) {
+                    document.getElementById('adminName').textContent = currentUser.name;
+                    document.getElementById('adminAvatar').textContent = currentUser.name.substring(0, 2).toUpperCase();
+                }
+            } catch (error) {
+                console.error('Invalid token:', error);
+                localStorage.removeItem('token');
+                window.location.href = '/login.html';
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            window.location.href = '/login.html';
+        }
+
+        function initializeUI() {
+            // Menu toggle for mobile
+            const menuToggle = document.querySelector('.menu-toggle');
+            const sidebar = document.querySelector('.sidebar');
+            
+            menuToggle?.addEventListener('click', function() {
+                sidebar.classList.toggle('active');
+            });
+            
+            // Page navigation
+            const pageLinks = document.querySelectorAll('.sidebar-menu a');
+            const pages = document.querySelectorAll('.page');
+            
+            pageLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Remove active class from all links
+                    pageLinks.forEach(l => l.classList.remove('active'));
+                    
+                    // Add active class to clicked link
+                    this.classList.add('active');
+                    
+                    // Get target page
+                    const targetPage = this.getAttribute('data-page');
+                    
+                    // Hide all pages
+                    pages.forEach(page => page.classList.remove('active'));
+                    
+                    // Show target page
+                    const targetElement = document.getElementById(targetPage);
+                    if (targetElement) {
+                        targetElement.classList.add('active');
+                        
+                        // Load page-specific data
+                        loadPageData(targetPage);
+                    }
+                    
+                    // Close sidebar on mobile after selection
+                    if (window.innerWidth < 992) {
+                        sidebar.classList.remove('active');
+                    }
+                });
+            });
+            
+            // Tab navigation
+            const tabs = document.querySelectorAll('.tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // Remove active class from all tabs
+                    tabs.forEach(t => t.classList.remove('active'));
+                    
+                    // Add active class to clicked tab
+                    this.classList.add('active');
+                    
+                    // Hide all tab contents
+                    tabContents.forEach(content => content.style.display = 'none');
+                    
+                    // Show target tab content
+                    const targetTab = this.getAttribute('data-tab');
+                    const targetElement = document.getElementById(`${targetTab}Tab`);
+                    if (targetElement) {
+                        targetElement.style.display = 'block';
+                    }
+                });
+            });
+            
+            // Initialize date picker for leave dates
+            if (typeof flatpickr !== 'undefined') {
+                flatpickr("#leaveDates", {
+                    mode: "range",
+                    dateFormat: "Y-m-d",
+                    minDate: "today",
+                });
+            }
+        }
+
+        async function loadDashboardData() {
+            try {
+                // Load employees
+                const employeesResponse = await fetch('/api/auth/employees', {
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                });
+                
+                if (employeesResponse.ok) {
+                    const employeesData = await employeesResponse.json();
+                    allEmployees = employeesData.employees || [];
+                    document.getElementById('totalEmployees').textContent = allEmployees.length;
+                }
+
+                // Load performance data
+                await loadPerformanceData();
+                
+                // Update dashboard stats
+                updateDashboardStats();
+                
+                // Initialize charts
+                initCharts();
+                
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+            }
+        }
+
+        async function loadPerformanceData() {
+            try {
+                // Load reviews
+                const reviewsResponse = await fetch('/api/performance/reviews/all', {
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                });
+                
+                if (reviewsResponse.ok) {
+                    const reviewsData = await reviewsResponse.json();
+                    allReviews = reviewsData.reviews || [];
+                }
+
+                // Load goals
+                const goalsResponse = await fetch('/api/performance/goals/all', {
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                });
+                
+                if (goalsResponse.ok) {
+                    const goalsData = await goalsResponse.json();
+                    allGoals = goalsData.goals || [];
+                }
+
+                // Load feedback
+                const feedbackResponse = await fetch('/api/performance/feedback/all', {
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                });
+                
+                if (feedbackResponse.ok) {
+                    const feedbackData = await feedbackResponse.json();
+                    allFeedback = feedbackData.feedback || [];
+                }
+                
+            } catch (error) {
+                console.error('Error loading performance data:', error);
+            }
+        }
+
+        function updateDashboardStats() {
+            document.getElementById('totalReviews').textContent = allReviews.length;
+            document.getElementById('activeGoals').textContent = allGoals.filter(g => g.status === 'pending' || g.status === 'in_progress').length;
+            
+            // Update recent activity
+            updateRecentActivity();
+        }
+
+        function updateRecentActivity() {
+            const recentActivityTable = document.getElementById('recentActivity');
+            if (!recentActivityTable) return;
+
+            // Combine recent activities
+            const activities = [
+                ...allReviews.slice(-3).map(r => ({
+                    employee: getEmployeeName(r.employee_id),
+                    activity: 'Performance review completed',
+                    department: getEmployeeDepartment(r.employee_id),
+                    time: formatDate(r.created_at)
+                })),
+                ...allGoals.slice(-3).map(g => ({
+                    employee: getEmployeeName(g.employee_id),
+                    activity: 'New goal created',
+                    department: getEmployeeDepartment(g.employee_id),
+                    time: formatDate(g.created_at)
+                }))
+            ].sort((a, b) => new Date(b.time) - new Date(a.time)).slice(0, 5);
+
+            if (activities.length === 0) {
+                recentActivityTable.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--gray);">No recent activity</td></tr>';
+                return;
+            }
+
+            recentActivityTable.innerHTML = activities.map(activity => `
+                <tr>
+                    <td>${activity.employee}</td>
+                    <td>${activity.activity}</td>
+                    <td>${activity.department}</td>
+                    <td>${activity.time}</td>
+                </tr>
+            `).join('');
+        }
+
+        function loadPageData(page) {
+            switch(page) {
+                case 'employees':
+                    loadEmployeesData();
+                    break;
+                case 'performance':
+                    loadPerformancePageData();
+                    break;
+                case 'analytics':
+                    initCharts();
+                    break;
+            }
+        }
+
+        function loadEmployeesData() {
+            const employeesTable = document.getElementById('employeesTable');
+            if (!employeesTable) return;
+
+            if (allEmployees.length === 0) {
+                employeesTable.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--gray);">No employees found</td></tr>';
+                return;
+            }
+
+            employeesTable.innerHTML = allEmployees.map(emp => `
+                <tr>
+                    <td>EMP-${emp.employee_id.toString().padStart(3, '0')}</td>
+                    <td>${emp.name}</td>
+                    <td>${emp.position}</td>
+                    <td>${emp.department}</td>
+                    <td><span class="status-badge status-approved">Active</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-primary"><i class="fas fa-eye"></i></button>
+                        <button class="btn btn-sm"><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function loadPerformancePageData() {
+            // Load reviews table
+            const reviewsTable = document.getElementById('reviewsTable');
+            if (reviewsTable && allReviews.length > 0) {
+                reviewsTable.innerHTML = allReviews.map(review => `
+                    <tr>
+                        <td>${getEmployeeName(review.employee_id)}</td>
+                        <td>${review.review_period_start} - ${review.review_period_end}</td>
+                        <td>${review.overall_rating}/5</td>
+                        <td><span class="status-badge status-approved">${review.status}</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-primary"><i class="fas fa-eye"></i></button>
+                            <button class="btn btn-sm"><i class="fas fa-edit"></i></button>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+
+            // Load goals table
+            const goalsTable = document.getElementById('goalsTable');
+            if (goalsTable && allGoals.length > 0) {
+                goalsTable.innerHTML = allGoals.map(goal => `
+                    <tr>
+                        <td>${goal.title}</td>
+                        <td>${getEmployeeName(goal.employee_id)}</td>
+                        <td>${goal.target_date}</td>
+                        <td>${goal.progress}%</td>
+                        <td><span class="status-badge status-${goal.status === 'completed' ? 'approved' : 'pending'}">${goal.status}</span></td>
+                    </tr>
+                `).join('');
+            }
+
+            // Load feedback table
+            const feedbackTable = document.getElementById('feedbackTable');
+            if (feedbackTable && allFeedback.length > 0) {
+                feedbackTable.innerHTML = allFeedback.map(feedback => `
+                    <tr>
+                        <td>${getEmployeeName(feedback.employee_id)}</td>
+                        <td>${feedback.type}</td>
+                        <td>${feedback.rating}/5</td>
+                        <td>${formatDate(feedback.created_at)}</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary"><i class="fas fa-eye"></i></button>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+        }
+
+        function initCharts() {
+            // Department distribution chart
+            const deptCtx = document.getElementById('departmentChart');
+            if (deptCtx) {
+                const departments = {};
+                allEmployees.forEach(emp => {
+                    departments[emp.department] = (departments[emp.department] || 0) + 1;
+                });
+
+                new Chart(deptCtx.getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: Object.keys(departments),
+                        datasets: [{
+                            data: Object.values(departments),
+                            backgroundColor: [
+                                '#4361ee',
+                                '#f72585',
+                                '#06d6a0',
+                                '#ff9e00',
+                                '#7209b7'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Performance overview chart
+            const perfCtx = document.getElementById('performanceChart');
+            if (perfCtx) {
+                const ratings = allReviews.map(r => r.overall_rating).filter(r => r);
+                const avgRating = ratings.length > 0 ? (ratings.reduce((a, b) => a + b, 0) / ratings.length).toFixed(1) : 0;
+                
+                new Chart(perfCtx.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: ['Technical', 'Communication', 'Teamwork', 'Leadership'],
+                        datasets: [{
+                            label: 'Average Rating',
+                            data: [avgRating, avgRating - 0.2, avgRating + 0.1, avgRating - 0.3],
+                            backgroundColor: '#4361ee'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 5
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Trends chart
+            const trendsCtx = document.getElementById('trendsChart');
+            if (trendsCtx) {
+                new Chart(trendsCtx.getContext('2d'), {
+                    type: 'line',
+                    data: {
+                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+                        datasets: [{
+                            label: 'Reviews Completed',
+                            data: [5, 8, 12, 15, 18, 22, allReviews.length],
+                            borderColor: '#4361ee',
+                            backgroundColor: 'rgba(67, 97, 238, 0.1)',
+                            fill: true,
+                            tension: 0.3
+                        }, {
+                            label: 'Goals Created',
+                            data: [3, 6, 9, 12, 16, 20, allGoals.length],
+                            borderColor: '#06d6a0',
+                            backgroundColor: 'rgba(6, 214, 160, 0.1)',
+                            fill: true,
+                            tension: 0.3
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        function createReview() {
+            // Redirect to HR dashboard for creating reviews
+            window.location.href = '/hr-dashboard.html';
+        }
+
+        function createGoal() {
+            // Redirect to HR dashboard for creating goals
+            window.location.href = '/hr-dashboard.html';
+        }
+
+        // Helper functions
+        function getEmployeeName(employeeId) {
+            const employee = allEmployees.find(e => e.employee_id === employeeId);
+            return employee ? employee.name : 'Unknown Employee';
+        }
+
+        function getEmployeeDepartment(employeeId) {
+            const employee = allEmployees.find(e => e.employee_id === employeeId);
+            return employee ? employee.department : 'Unknown';
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            return date.toLocaleDateString();
+        }
+    </script>
+</body>
+</html>
